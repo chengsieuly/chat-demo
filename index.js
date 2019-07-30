@@ -12,8 +12,6 @@ server.listen(port, ip.address(), () => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-var numUsers = 0;
-
 io.on('connection', (socket) => {
   var addedUser = false;
 
@@ -28,25 +26,18 @@ io.on('connection', (socket) => {
     if (addedUser) return;
 
     socket.username = username;
-    ++numUsers;
     addedUser = true;
-    socket.emit('login', {
-      numUsers: numUsers
-    });
+    socket.emit('login');
 
     socket.broadcast.emit('user joined', {
       username: socket.username,
-      numUsers: numUsers
     });
   });
 
   socket.on('disconnect', () => {
     if (addedUser) {
-      --numUsers;
-
       socket.broadcast.emit('user left', {
         username: socket.username,
-        numUsers: numUsers
       });
     }
   });
